@@ -33,27 +33,22 @@ else if (resp == "2")
     
     using (StreamReader sr = new StreamReader(file))
     {
-        for(int i = 0; i < 10; i++)
+        for(int i = 0; i < 5; i++)
         //while (!sr.EndOfStream)
         {
             string line = sr.ReadLine();
             // parse the movieID from each line of data
-            string movieID = line.Substring(0,line.IndexOf(','));
+            String[] arr = line.Split(',');//put the movieID, title and genres into an array
+            Console.WriteLine("{0,-10}{1,-25}{2,-40}",arr[0],arr[1],arr[2]);
+            String[] genreArray = arr[2].Split('|');
 
-            Console.WriteLine($"MovieID is: {movieID}");
+            string myOutput = $"{arr[0]} {arr[1]}";
+            Console.WriteLine(myOutput);
             
-            //Console.WriteLine($"Week of {parsedDate:MMM, dd, yyyy}:");
-            //Console.WriteLine("{0,3}{1,3}{2,3}{3,3}{4,3}{5,3}{6,3}","Su","Mo","Tu","We","Th","Fr","Sa");
-            //Console.WriteLine("{0,3}{1,3}{2,3}{3,3}{4,3}{5,3}{6,3}","--","--","--","--","--","--","--");
-
-            // parse the movie title from each line
-            string title = line.Substring(line.IndexOf(',')+1);
-            Console.WriteLine($"Title is: {title}");
-
-            //String[] arr = hours.Split('|');
-            //Console.WriteLine("{0,3}{1,3}{2,3}{3,3}{4,3}{5,3}{6,3}",arr[0],arr[1],arr[2],arr[3],arr[4],arr[5],arr[6]);
-            System.Console.WriteLine();
-            i++;
+            //loop for writing the genres
+            for(int j = 0; j < genreArray.Length; j++)
+            System.Console.WriteLine(genreArray[j]);
+            
         }
     }
    
