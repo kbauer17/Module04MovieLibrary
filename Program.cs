@@ -1,18 +1,17 @@
 ﻿using NLog;
-
-// See https://aka.ms/new-console-template for more information
 string path = Directory.GetCurrentDirectory() + "\\nlog.config";
-
 // create instance of Logger
 var logger = LogManager.LoadConfiguration(path).GetCurrentClassLogger();
 
 // log sample messages
+/*
 logger.Trace("Sample trace message");
 logger.Debug("Sample debug message");
 logger.Info("Sample informational message");
 logger.Warn("Sample warning message");
 logger.Error("Sample error message");
 logger.Fatal("Sample fatal error message");
+*/
 
 //declare the file
 string file = "D:/School/2023 Spring/DotNet/Module04/ml-latest-small/movies.csv";
@@ -33,21 +32,27 @@ else if (resp == "2")
     
     using (StreamReader sr = new StreamReader(file))
     {
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < 100; i++)
         //while (!sr.EndOfStream)
         {
             string line = sr.ReadLine();
             // parse the movieID from each line of data
             String[] arr = line.Split(',');//put the movieID, title and genres into an array
-            Console.WriteLine("{0,-10}{1,-25}{2,-40}",arr[0],arr[1],arr[2]);
+            //parse the genres by |
             String[] genreArray = arr[2].Split('|');
 
-            string myOutput = $"{arr[0]} {arr[1]}";
-            Console.WriteLine(myOutput);
+            //build part of the output string
+            string myOutput = String.Format("{0,-10}{1,-80}   ",arr[0],arr[1]);
+                        
+            //loop for writing the genres to the output string
+            for(int j = 0; j < genreArray.Length; j++){
+            myOutput += genreArray[j];
+                if(j < genreArray.Length-1) {
+                    myOutput += ", ";
+                }
             
-            //loop for writing the genres
-            for(int j = 0; j < genreArray.Length; j++)
-            System.Console.WriteLine(genreArray[j]);
+            }
+            Console.WriteLine(myOutput);
             
         }
     }
