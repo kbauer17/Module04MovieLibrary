@@ -15,6 +15,7 @@ logger.Fatal("Sample fatal error message");
 
 //declare the file
 string file = "D:/School/2023 Spring/DotNet/Module04/ml-latest-small/movies.csv";
+string myOutput;
 int widthColumn0 = 0;
 int widthColumn1 = 0;
 int widthColumn2 = 0;
@@ -54,47 +55,151 @@ else if (resp == "2")
 
     {
         using(StreamReader sr = new StreamReader(file))
-        for(int i = 0; i < 150; i++)
-        //while (!sr.EndOfStream)
+        //for (int i = 0; i < 150; i++)
+        while (!sr.EndOfStream)
         {
             
             string line = sr.ReadLine();
             
-                // check for " in the movie title
-                int foundQ1 = line.IndexOf("\"");
-                int foundQ2 = line.IndexOf("\"", foundQ1 + 1);
+            // check for " in the movie title
+            int foundQ1 = line.IndexOf("\"");
+            int foundQ2 = line.IndexOf("\"", foundQ1 + 1);
+            
+            if (foundQ1 != foundQ2 && foundQ1 >= 0)
+            {
+                // within a line containing quotes, check for a specific case
+                char ch = '"';
+                int count = line.Count(f =>(f==ch)); //checking for more than one set of ""
+                bool b1 = line.Contains("September 11 (2002)");
+                bool b2 = line.Contains("Great Performances\"\" Cats");
 
-                if (foundQ1 != foundQ2 && foundQ1 >= 0)
-                {
-                    int foundC1 = line.IndexOf(",", foundQ1 + 1);// position of a comma
-                    int foundP1 = foundQ2 - 6;// position of first parenthesis
+                if(count > 2 && b1 == true){
+                    line = line.Remove(foundQ1+1, line.IndexOf("September") - (foundQ1+1));
+                    System.Console.WriteLine(line);
+
+                    String[] arr = line.Split(',');//put the movieID, title and genres into an array
+                    //parse the genres by |
+                    String[] genreArray = arr[2].Split('|');
+
+                    //build part of the output string
+                    myOutput = String.Format("{0,-10}{1,-80}   ",arr[0],arr[1]);
+                                
+                    //loop for writing the genres to the output string
+                    for(int j = 0; j < genreArray.Length; j++){
+                    myOutput += genreArray[j];
+                        if(j < genreArray.Length-1) {
+                            myOutput += ", ";
+                        }
+                    }
+                } else if (count > 2 && b2 == true){
+                    char ch2 = '"';
+                    int count2 = line.Count(f =>(f==ch2));
+                    System.Console.WriteLine("Count = " + count2);
+                    while(count2 > 2){
+                        int foundExtraQ = line.IndexOf("\"", foundQ1 + 1);
+                        System.Console.WriteLine("Index of first extra quote is "+ foundExtraQ);
+                        line = line.Remove(foundExtraQ, 1);
+                        System.Console.WriteLine("Line after first extra q is removed = " +line);
+                        count--;
+                    }
+                    System.Console.WriteLine(line);
+                    String[] arr = line.Split(',');//put the movieID, title and genres into an array
+                    //parse the genres by |
+                    String[] genreArray = arr[2].Split('|');
+
+                    //build part of the output string
+                    myOutput = String.Format("{0,-10}{1,-80}   ",arr[0],arr[1]);
+                                
+                    //loop for writing the genres to the output string
+                    for(int j = 0; j < genreArray.Length; j++){
+                    myOutput += genreArray[j];
+                        if(j < genreArray.Length-1) {
+                            myOutput += ", ";
+                        }
+                    }
+
+
+
+                } else { //this is the general case for a line with ""
+            
+
+                
+                
+                    /*  this block of code works but isn't what I need for the current issue
+                    // check for " inside the ""
+                    if (foundC1 > foundQ2){
+                        char ch = '"';
+                        int count = line.Count(f =>(f==ch));
+                        System.Console.WriteLine("Count = " + count);
+                        while(count > 2){
+                            int foundExtraQ = line.IndexOf("\"", foundQ1 + 1);
+                            System.Console.WriteLine("Index of first extra quote is "+ foundExtraQ);
+                            line = line.Remove(foundExtraQ, 1);
+                            System.Console.WriteLine("Line after first extra q is removed = " +line);
+                            count--;
+                        }
+                        System.Console.WriteLine(line);
+                    } */
+
+                    int foundC1 = line.IndexOf(",", foundQ1 + 1);// position of the first comma inside the quotations
+                    int foundP1 = line.IndexOf("(", foundC1);// position of first parenthesis inside quotations after the first comma
+                    System.Console.WriteLine("Q1 = "+foundQ1);
+                    System.Console.WriteLine("Q2 = "+foundQ2);
+                    System.Console.WriteLine("C1 = "+foundC1);
+                    System.Console.WriteLine("P1 = "+foundP1);
+
+                    
 
                     // rebuild 'line' with substrings
-                    String portionOne = line.Substring(foundQ1+1, foundC1 - foundQ1 - 1);
-                    String portionTwo = line.Substring(foundC1 +2, 4);// length was foundP1 - (foundC1 + 2)
-                    String portionThree = line.Substring(foundC1 +6, foundQ2 - (foundC1+6));//start was p1, length was foundQ2 - foundP1
-                    String portionFour = line.Substring(0,foundQ1);
-                    String portionFive = line.Substring(foundQ2+1);
-                    line = $"{portionFour}{portionTwo}{portionOne}{portionThree}{portionFive}";
-
+                    String portionOne = line.Substring(0,foundQ1-1);//this is everything up to the first comma
+                    String portionTwo = line.Substring(foundC1 +2, (foundP1-(foundC1+2)));//inside the "", 4 chars after the inside comma, starting 2 char after the comma, meant to capture "The "
+                    String portionThree = line.Substring(foundQ1+1, foundC1 - foundQ1 - 1);
+                    String portionFour = line.Substring(foundP1-1, foundQ2 - (foundP1-1));//traps the year plus a leading space
+                    String portionFive = line.Substring(foundQ2+2);//this is everything after the final comma
+                    //line = $"{portionOne}{portionTwo}{portionThree}{portionFour}{portionFive}";
+                    /*
+                    System.Console.WriteLine("PortionOne is: "+portionOne);
+                    System.Console.WriteLine("PortionTwo is: "+portionTwo);
+                    System.Console.WriteLine("PortionThree is: "+portionThree);
+                    System.Console.WriteLine("PortionFour is: "+portionFour);
+                    System.Console.WriteLine("PortionFive is: "+portionFive);
+                    */
                     //Console.WriteLine(line);
+                    
+                    String[] arr = {portionOne,string.Concat(portionTwo,portionThree,portionFour),portionFive};
+                    String[] genreArray = arr[2].Split('|');
+
+                    //build part of the output string
+                    myOutput = String.Format("{0,-10}{1,-80}   ",arr[0],arr[1]);
+                                
+                    //loop for writing the genres to the output string
+                    for(int j = 0; j < genreArray.Length; j++){
+                        myOutput += genreArray[j];
+                        if(j < genreArray.Length-1) {
+                            myOutput += ", ";
+                        }
+                    }
                 }
 
-            String[] arr = line.Split(',');//put the movieID, title and genres into an array
-            //parse the genres by |
-            String[] genreArray = arr[2].Split('|');
+            } else {
 
-            //build part of the output string
-            string myOutput = String.Format("{0,-10}{1,-80}   ",arr[0],arr[1]);
-                        
-            //loop for writing the genres to the output string
-            for(int j = 0; j < genreArray.Length; j++){
-            myOutput += genreArray[j];
-                if(j < genreArray.Length-1) {
-                    myOutput += ", ";
+                String[] arr = line.Split(',');//put the movieID, title and genres into an array
+                //parse the genres by |
+                String[] genreArray = arr[2].Split('|');
+
+                //build part of the output string
+                myOutput = String.Format("{0,-10}{1,-80}   ",arr[0],arr[1]);
+                            
+                //loop for writing the genres to the output string
+                for(int j = 0; j < genreArray.Length; j++){
+                myOutput += genreArray[j];
+                    if(j < genreArray.Length-1) {
+                        myOutput += ", ";
+                    }
                 }
-            
+                
             }
+
             Console.WriteLine(myOutput);
             
         }
