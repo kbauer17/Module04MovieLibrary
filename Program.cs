@@ -67,6 +67,7 @@ else if (resp == "2")
             
             if (foundQ1 != foundQ2 && foundQ1 >= 0)
             {
+                System.Console.WriteLine("The line contains at least 1 pr of quotes");
                 // within a line containing quotes, check for a specific case
                 char ch = '"';
                 int count = line.Count(f =>(f==ch)); //checking for more than one set of ""
@@ -74,6 +75,7 @@ else if (resp == "2")
                 bool b2 = line.Contains("Great Performances\"\" Cats");
 
                 if(count > 2 && b1 == true){
+                    System.Console.WriteLine("The line contains > 1 pr of quotes & September 11");
                     line = line.Remove(foundQ1+1, line.IndexOf("September") - (foundQ1+1));
                     System.Console.WriteLine(line);
 
@@ -92,6 +94,7 @@ else if (resp == "2")
                         }
                     }
                 } else if (count > 2 && b2 == true){
+                    System.Console.WriteLine("The line contains > 1 pr of quotes & Great Performance");
                     char ch2 = '"';
                     int count2 = line.Count(f =>(f==ch2));
                     System.Console.WriteLine("Count = " + count2);
@@ -140,7 +143,7 @@ else if (resp == "2")
                         }
                         System.Console.WriteLine(line);
                     } */
-
+                    System.Console.WriteLine("The line contains only 1 pair of quotes");
                     int foundC1 = line.IndexOf(",", foundQ1 + 1);// position of the first comma inside the quotations
                     int foundP1 = line.IndexOf("(", foundC1);// position of first parenthesis inside quotations after the first comma
                     System.Console.WriteLine("Q1 = "+foundQ1);
@@ -182,7 +185,7 @@ else if (resp == "2")
                 }
 
             } else {
-
+                System.Console.WriteLine("The line is formatted without quotes");
                 String[] arr = line.Split(',');//put the movieID, title and genres into an array
                 //parse the genres by |
                 String[] genreArray = arr[2].Split('|');
