@@ -16,7 +16,8 @@ logger.Fatal("Sample fatal error message");
 
 //declare the file
 string file = "D:/School/2023 Spring/DotNet/Module04/ml-latest-small/movies.csv";
-//string myOutput;
+int myStringCompare, k = 0;
+string[] arrTitles = new string[100];
 
 // ask for input
 Console.WriteLine("Enter 1 to append to the Movie Library.");
@@ -29,6 +30,55 @@ if (resp == "1")
 {
     // append to data file:  StreamWriter sw = new StreamWriter(file,append:  true);
 
+    //ask a question
+    Console.WriteLine("What is the movie title?");
+    // input the title
+    string? newTitle = Console.ReadLine();
+    
+    //  check if new entry duplicates a current title
+    using(StreamReader sr = new StreamReader(file))
+    
+    for (int i = 0; i < 1500; i++)
+    //while (!sr.EndOfStream)
+    {
+        string? line = sr.ReadLine();
+        //System.Console.WriteLine(line);
+
+        // find boundaries within to compare strings
+        int firstComma = line.IndexOf(",");
+        int lastComma = line.LastIndexOf(",");
+
+        //  examine existing title for inclusion of new title
+        myStringCompare = line.ToUpper().IndexOf(newTitle.ToUpper(),firstComma+1,lastComma-firstComma-1);
+            if(myStringCompare > 0) {
+                arrTitles[k] = line.Substring(firstComma+1,lastComma-firstComma-1);
+                k++;  // means the array has indexes used up through k-1;  this counter increments by may not come back around to fill that item
+            } 
+    }
+    
+    //  let the user know if possible matches were found
+    if(k == 0){
+        System.Console.WriteLine("No matches found");
+    } else {
+        System.Console.WriteLine("Possible matches found: ");
+        for(int m = 0; m < k; m++){
+            System.Console.Write("   ");
+            System.Console.WriteLine(arrTitles[m]);
+        }
+        System.Console.WriteLine("Is your movie in the list of possible matches? (Y/N)");
+            string? myMatch = Console.ReadLine();
+            
+            if(myMatch.ToUpper().IndexOf("N") < 0 && myMatch.ToUpper().IndexOf("Y") < 0) {
+                System.Console.WriteLine("Invalid response, please select again");
+            } else if (myMatch.ToUpper().IndexOf("N") == 0) {
+                System.Console.WriteLine("The user does not see a match to their title");
+            } else {
+                System.Console.WriteLine("The user sees a match to their title");
+            }
+    }
+    
+        
+
 }
 else if (resp == "2")
 {
@@ -40,7 +90,7 @@ else if (resp == "2")
     while (!sr.EndOfStream)
     {
         
-        string line = sr.ReadLine();
+        string? line = sr.ReadLine();
         
         // check for " in the movie title
         int foundQ1 = line.IndexOf("\"");
@@ -84,7 +134,7 @@ else if (resp == "2")
                     if(foundP1 < 0){
                         //The line has only 1 pr of quotes but no () (i.e., no date)
                         String[] arr1 = {line.Substring(0,foundQ1-1),
-                                        line.Substring(foundQ1+1, foundQ2-foundQ1),
+                                        line.Substring(foundQ1+1, foundQ2-foundQ1-1),
                                         line.Substring(foundQ2+2)};
                         CreateOutputString(arr1);
                     } else {
