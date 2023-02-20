@@ -22,7 +22,6 @@ string[] arrGenres = {"Action","Adventure","Animation","Children","Comedy","Crim
                         "Western","Other"};
 
 List<string> arrNewTitleGenres = new List<string>();
-//string[] arrNewTitleGenres = new string[5];
 int myStringCompare = 0;
 int k = 0;
 int myMovieIndex = 0;
@@ -39,15 +38,14 @@ if (resp == "1")
 {
     // append to data file:  StreamWriter sw = new StreamWriter(file,append:  true);
 
-    //ask a question
+    //ask the user for the movie title they wish to add to the file
     Console.WriteLine("What is the movie title?");
-    // input the title
     string? newTitle = Console.ReadLine();
     
     //  check if new entry duplicates a current title
     using(StreamReader sr = new StreamReader(file))
     
-    for (int i = 0; i < 5000; i++)
+    for (int i = 0; i < 1500; i++)
     //while (!sr.EndOfStream)
     {
         string? line = sr.ReadLine();
@@ -101,7 +99,8 @@ if (resp == "1")
     
     //  let the user know if possible matches were found
     if(k == 0){
-        System.Console.WriteLine("No matches found");
+        //System.Console.WriteLine("No matches found");
+        AppendMovieTitle(arrNewTitleGenres, myMovieIndex, newTitle);
     } else {
         System.Console.WriteLine("Possible matches found: ");
         for(int m = 0; m < k; m++){
@@ -115,47 +114,11 @@ if (resp == "1")
                 System.Console.WriteLine("Invalid response, please select again");
 
             } else if (myMatch.ToUpper().IndexOf("N") == 0) {
-                System.Console.WriteLine("     The user does not see a match to their title");
-                System.Console.WriteLine("What year was the movie released?  (YYYY)");
-                string newTitleYear = " (" + Console.ReadLine() + ")";
-                System.Console.WriteLine("New title year is " + newTitleYear);
-                System.Console.WriteLine("Please select up to five genres from this list by entering the number: (x to exit)");
-                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","1. "+arrGenres[0],"2. "+arrGenres[1],
-                                        "3. "+arrGenres[2],"4. "+arrGenres[3],"5. "+arrGenres[4]);
-                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","6. "+arrGenres[5],"7. "+arrGenres[6],
-                                        "8. "+arrGenres[7],"9. "+arrGenres[8],"10. "+arrGenres[9]);
-                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","11. "+arrGenres[10],"12. "+arrGenres[11],
-                                        "13. "+arrGenres[12],"14. "+arrGenres[13],"15. "+arrGenres[14]);
-                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","16. "+arrGenres[15],"17. "+arrGenres[16],
-                                        "18. "+arrGenres[17],"19. "+arrGenres[18],"20. "+arrGenres[19]);
-                
-                List<int> firstlist = new List<int>();
-                for(int i = 0; i < 5; i++){
-                    bool isParsable = Int32.TryParse(Console.ReadLine(), out int userInputGenre);
-                    if(isParsable == false) {
-                        break;
-                    }else{
-                        arrNewTitleGenres.Add(arrGenres[i]);
-                    }
-                }
-                arrNewTitleGenres.ForEach(Console.WriteLine);
-
-                // now build the string and append to the file
-                    //  build part of the output string
-                string myOutputToAppend = String.Concat(myMovieIndex + 1,",",newTitle,newTitleYear,",");
-
-                //loop for writing the genres to the output string
-                for(int j = 0; j < arrNewTitleGenres.Count; j++){
-                    myOutputToAppend += arrNewTitleGenres[j];
-                    if(j < arrNewTitleGenres.Count-1){
-                        myOutputToAppend += "|";
-                    }
-                }
-                System.Console.WriteLine(myOutputToAppend);
-                //add the line to the end of file
+                //System.Console.WriteLine("     The user does not see a match to their title");
+                AppendMovieTitle(arrNewTitleGenres, myMovieIndex, newTitle);
 
             } else {
-                System.Console.WriteLine("The user sees a match to their title");
+                System.Console.WriteLine("The user sees a match to their title.  Exit application.");
             }
     }
     
@@ -266,3 +229,47 @@ static void CreateOutputString(String[] arr){
     Console.WriteLine(myOutput);
 }
 
+
+static void AppendMovieTitle(List<string>arrNewTitleGenres, int myMovieIndex, string newTitle){
+    string[] arrGenres = {"Action","Adventure","Animation","Children","Comedy","Crime",
+                        "Documentary","Drama","Fantasy","Film-Noir","Horror","IMAX",
+                        "Musical","Mystery","Romance","Sci-Fi","Thriller","War",
+                        "Western","Other"};
+
+    System.Console.WriteLine("What year was the movie released?  (YYYY)");
+                string newTitleYear = " (" + Console.ReadLine() + ")";
+                System.Console.WriteLine("New title year is " + newTitleYear);
+                System.Console.WriteLine("Please select up to five genres from this list by entering the number: (x to exit)");
+                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","1. "+arrGenres[0],"2. "+arrGenres[1],
+                                        "3. "+arrGenres[2],"4. "+arrGenres[3],"5. "+arrGenres[4]);
+                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","6. "+arrGenres[5],"7. "+arrGenres[6],
+                                        "8. "+arrGenres[7],"9. "+arrGenres[8],"10. "+arrGenres[9]);
+                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","11. "+arrGenres[10],"12. "+arrGenres[11],
+                                        "13. "+arrGenres[12],"14. "+arrGenres[13],"15. "+arrGenres[14]);
+                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","16. "+arrGenres[15],"17. "+arrGenres[16],
+                                        "18. "+arrGenres[17],"19. "+arrGenres[18],"20. "+arrGenres[19]);
+                
+                for(int i = 0; i < 5; i++){
+                    bool isParsable = Int32.TryParse(Console.ReadLine(), out int userInputGenre);
+                    if(isParsable == false) {
+                        break;
+                    }else{
+                        arrNewTitleGenres.Add(arrGenres[userInputGenre]);
+                    }
+                }
+                //arrNewTitleGenres.ForEach(Console.WriteLine);
+
+                // now build the string and append to the file
+                    //  build part of the output string
+                string myOutputToAppend = String.Concat(myMovieIndex + 1,",",newTitle,newTitleYear,",");
+
+                //loop for writing the genres to the output string
+                for(int j = 0; j < arrNewTitleGenres.Count; j++){
+                    myOutputToAppend += arrNewTitleGenres[j];
+                    if(j < arrNewTitleGenres.Count-1){
+                        myOutputToAppend += "|";
+                    }
+                }
+                System.Console.WriteLine(myOutputToAppend);
+                //add the line to the end of the file
+}
