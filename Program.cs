@@ -14,14 +14,23 @@ logger.Fatal("Sample fatal error message");
 */
 
 
-//declare the file
+//declare the file and variables
 string file = "D:/School/2023 Spring/DotNet/Module04/ml-latest-small/movies.csv";
-int myStringCompare, k = 0;
+string[] arrGenres = {"Action","Adventure","Animation","Children","Comedy","Crime",
+                        "Documentary","Drama","Fantasy","Film-Noir","Horror","IMAX",
+                        "Musical","Mystery","Romance","Sci-Fi","Thriller","War",
+                        "Western","Other"};
+
+List<string> arrNewTitleGenres = new List<string>();
+//string[] arrNewTitleGenres = new string[5];
+int myStringCompare = 0;
+int k = 0;
+int myMovieIndex = 0;
 string[] arrTitles = new string[100];
 
 // ask for input
 Console.WriteLine("Enter 1 to append to the Movie Library.");
-Console.WriteLine("Enter 2 to parse data.");
+Console.WriteLine("Enter 2 to list the current contents of the Movie Library.");
 Console.WriteLine("Enter anything else to quit.");
 
 // input response
@@ -38,21 +47,55 @@ if (resp == "1")
     //  check if new entry duplicates a current title
     using(StreamReader sr = new StreamReader(file))
     
-    for (int i = 0; i < 1500; i++)
+    for (int i = 0; i < 5000; i++)
     //while (!sr.EndOfStream)
     {
         string? line = sr.ReadLine();
         //System.Console.WriteLine(line);
 
-        // find boundaries within to compare strings
+        // find boundaries within current movie title to compare strings
         int firstComma = line.IndexOf(",");
         int lastComma = line.LastIndexOf(",");
+ 
+        // capture the movieIndex while checking for potential duplicate titles
+        bool isParsable = Int32.TryParse((line.Substring(0,firstComma)), out int currentLineIndex);
+            if(currentLineIndex > myMovieIndex)
+                myMovieIndex = currentLineIndex;
 
-        //  examine existing title for inclusion of new title
-        myStringCompare = line.ToUpper().IndexOf(newTitle.ToUpper(),firstComma+1,lastComma-firstComma-1);
-            if(myStringCompare > 0) {
+        // create a no punctuation string from the current movie title
+        string? myNoPuncLine = line.Substring(firstComma+1, lastComma-firstComma-1);
+        int lastParen = myNoPuncLine.LastIndexOf(")");
+        
+        // first, remove the year from the current movie title
+        if(lastParen > 0)
+            myNoPuncLine = myNoPuncLine.Remove(lastParen-5,6);
+            
+        // remove punctuation...
+        string? myNewTitle = newTitle;
+        char[] ch = {'"', ',', ' '};
+        foreach(char x in ch){
+            // ...from the current movie title
+            int count = myNoPuncLine.Count(f=>(f==x));
+            while(count > 0){
+                int foundPunc = myNoPuncLine.IndexOf(x);
+                myNoPuncLine=myNoPuncLine.Remove(foundPunc,1);
+                count--;
+            }
+            // ...from the user entry
+            int count2 = myNewTitle.Count(f=>(f==x));
+            while(count2 > 0){
+                int foundPunc2 = myNewTitle.IndexOf(x);
+                myNewTitle=myNewTitle.Remove(foundPunc2,1);
+                count2--;
+            }
+            
+        }
+
+        //  examine existing title from file for inclusion of new title
+        myStringCompare = myNoPuncLine.ToUpper().IndexOf(newTitle.ToUpper());
+            if(myStringCompare >= 0) {
                 arrTitles[k] = line.Substring(firstComma+1,lastComma-firstComma-1);
-                k++;  // means the array has indexes used up through k-1;  this counter increments by may not come back around to fill that item
+                k++;  // means the array has indexes used up through k-1;  this counter increments but may not come back around to fill that item
             } 
     }
     
@@ -70,8 +113,47 @@ if (resp == "1")
             
             if(myMatch.ToUpper().IndexOf("N") < 0 && myMatch.ToUpper().IndexOf("Y") < 0) {
                 System.Console.WriteLine("Invalid response, please select again");
+
             } else if (myMatch.ToUpper().IndexOf("N") == 0) {
-                System.Console.WriteLine("The user does not see a match to their title");
+                System.Console.WriteLine("     The user does not see a match to their title");
+                System.Console.WriteLine("What year was the movie released?  (YYYY)");
+                string newTitleYear = " (" + Console.ReadLine() + ")";
+                System.Console.WriteLine("New title year is " + newTitleYear);
+                System.Console.WriteLine("Please select up to five genres from this list by entering the number: (x to exit)");
+                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","1. "+arrGenres[0],"2. "+arrGenres[1],
+                                        "3. "+arrGenres[2],"4. "+arrGenres[3],"5. "+arrGenres[4]);
+                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","6. "+arrGenres[5],"7. "+arrGenres[6],
+                                        "8. "+arrGenres[7],"9. "+arrGenres[8],"10. "+arrGenres[9]);
+                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","11. "+arrGenres[10],"12. "+arrGenres[11],
+                                        "13. "+arrGenres[12],"14. "+arrGenres[13],"15. "+arrGenres[14]);
+                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","16. "+arrGenres[15],"17. "+arrGenres[16],
+                                        "18. "+arrGenres[17],"19. "+arrGenres[18],"20. "+arrGenres[19]);
+                
+                List<int> firstlist = new List<int>();
+                for(int i = 0; i < 5; i++){
+                    bool isParsable = Int32.TryParse(Console.ReadLine(), out int userInputGenre);
+                    if(isParsable == false) {
+                        break;
+                    }else{
+                        arrNewTitleGenres.Add(arrGenres[i]);
+                    }
+                }
+                arrNewTitleGenres.ForEach(Console.WriteLine);
+
+                // now build the string and append to the file
+                    //  build part of the output string
+                string myOutputToAppend = String.Concat(myMovieIndex + 1,",",newTitle,newTitleYear,",");
+
+                //loop for writing the genres to the output string
+                for(int j = 0; j < arrNewTitleGenres.Count; j++){
+                    myOutputToAppend += arrNewTitleGenres[j];
+                    if(j < arrNewTitleGenres.Count-1){
+                        myOutputToAppend += "|";
+                    }
+                }
+                System.Console.WriteLine(myOutputToAppend);
+                //add the line to the end of file
+
             } else {
                 System.Console.WriteLine("The user sees a match to their title");
             }
