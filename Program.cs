@@ -3,36 +3,23 @@ string path = Directory.GetCurrentDirectory() + "\\nlog.config";
 // create instance of Logger
 var logger = LogManager.LoadConfiguration(path).GetCurrentClassLogger();
 
-// log sample messages
-/*
-logger.Trace("Sample trace message");
-logger.Debug("Sample debug message");
-logger.Info("Sample informational message");
-logger.Warn("Sample warning message");
-logger.Error("Sample error message");
-logger.Fatal("Sample fatal error message");
-*/
-
-
 //declare the file and variables
-string file = "D:/School/2023 Spring/DotNet/Module04/Module04MovieLibrary/movies.csv";
-
+string file = "movies.csv";
 string? resp;
 int myStringCompare = 0;
 int k = 0;
 int myMovieIndex = 0;
 string[] arrTitles = new string[100];
 
+// provide a menu to the user and loop until they want to stop
 do
 {
-
-    // ask for input
     Console.WriteLine("Enter 1 to append a new movie to the Movie Library.");
     Console.WriteLine("Enter 2 to list the current contents of the Movie Library.");
     Console.WriteLine("Enter anything else to quit.");
 
     // input response
-    resp = Console.ReadLine();//string? 
+    resp = Console.ReadLine();
     if (resp == "1")
     {
         //ask the user for the movie title they wish to add to the file
@@ -42,7 +29,6 @@ do
         //  check if new entry duplicates a current title
         using(StreamReader sr = new StreamReader(file))
         
-        //for (int i = 0; i < 1500; i++)
         while (!sr.EndOfStream)
         {
             string? line = sr.ReadLine();
@@ -89,38 +75,34 @@ do
             myStringCompare = myNoPuncLine.ToUpper().IndexOf(newTitle!.ToUpper());
                 if(myStringCompare >= 0) {
                     arrTitles[k] = line.Substring(firstComma+1,lastComma-firstComma-1);
-                    k++;  // means the array has indexes used up through k-1;  this counter increments but may not come back around to fill that item
+                    k++;    // means the array has indexes used up through k-1
+                            //this counter increments but may not come back around to fill that item
                 } 
         }
         
         //  let the user know if possible matches were found
-        if(k == 0){
-            //System.Console.WriteLine("No matches found");
-            AppendMovieTitle(myMovieIndex, newTitle!,file);  
-        } else {
+        if(k == 0){     // case:  no matches found
+            AppendMovieTitle(myMovieIndex, newTitle!,file, logger);  
+        } else {        // case:  possible matches/duplicates found
             System.Console.WriteLine("Possible matches found: ");
             for(int m = 0; m < k; m++){
                 System.Console.Write("   ");
                 System.Console.WriteLine(arrTitles[m]);
             }
             System.Console.WriteLine("Is your movie in the list of possible matches? (Y/N)");
-                string? myMatch = Console.ReadLine();
-                
-                if(myMatch!.ToUpper().IndexOf("N") < 0 && myMatch.ToUpper().IndexOf("Y") < 0) {
-                    System.Console.WriteLine("Invalid response, please select again");
-
-                } else if (myMatch.ToUpper().IndexOf("N") == 0) {
-                    //System.Console.WriteLine("     The user does not see a match to their title");
-                    AppendMovieTitle(myMovieIndex, newTitle!,file);
-
-                } else {
-                    System.Console.WriteLine("\nOk, that title is already in the Movie Library.");
-                    System.Console.WriteLine("Please select from the following:\n");
-                }
-        }
-        
+            string? myMatch = Console.ReadLine();
             
+            if(myMatch!.ToUpper().IndexOf("N") < 0 && myMatch.ToUpper().IndexOf("Y") < 0) { // invalid entry by user
+                System.Console.WriteLine("Invalid response, please select again");
 
+            } else if (myMatch.ToUpper().IndexOf("N") == 0) {   // user does not see a match to their title
+                AppendMovieTitle(myMovieIndex, newTitle!,file, logger);
+
+            } else {    //  user identified a match to their title
+                System.Console.WriteLine("\nOk, that title is already in the Movie Library.");
+                System.Console.WriteLine("Please select from the following:\n");
+            }
+        }
     }
     else if (resp == "2")
     {
@@ -128,10 +110,8 @@ do
     
         using(StreamReader sr = new StreamReader(file))
 
-        //for (int i = 0; i < 9000; i++)
         while (!sr.EndOfStream)
         {
-            
             string? line = sr.ReadLine();
             
             // check for " in the movie title
@@ -170,7 +150,7 @@ do
                 } else { //this is the general case for a line with only 1 set of ""
             
                     int foundC1 = line.IndexOf(",", foundQ1 + 1);  // position of the first comma inside the quotations
-                    int foundP1 = line.IndexOf("(", foundC1);      // position of first parenthesis inside quotations after the first comma
+                    int foundP1 = line.IndexOf("(", foundC1);      // position of first parenthesis after the first comma inside quotations 
 
                         // the line has one set of "" and no parenthesis (i.e., no date given after the title)
                         if(foundP1 < 0){
@@ -192,7 +172,6 @@ do
                             String[] arr = {portionOne,string.Concat(portionTwo,portionThree,portionFour),portionFive};
                             CreateOutputString(arr);
                             }
-                    
                 }
 
             } else {
@@ -202,11 +181,7 @@ do
                 CreateOutputString(arr);
                 
             }
-                    
         }
-        
-    
-        
     }
 }while(resp == "1" || resp == "2");
 
@@ -227,7 +202,8 @@ static void CreateOutputString(String[] arr){
     Console.WriteLine(myOutput);
 }
 
-static void AppendMovieTitle(int myMovieIndex, string newTitle, string file){
+static void AppendMovieTitle(int myMovieIndex, string newTitle, string file, Logger? logger)
+{
     string[] arrGenres = {"Action","Adventure","Animation","Children","Comedy","Crime",
                         "Documentary","Drama","Fantasy","Film-Noir","Horror","IMAX",
                         "Musical","Mystery","Romance","Sci-Fi","Thriller","War",
@@ -235,43 +211,52 @@ static void AppendMovieTitle(int myMovieIndex, string newTitle, string file){
     List<string> arrNewTitleGenres = new List<string>();
 
     System.Console.WriteLine("What year was the movie released?  (YYYY)");
-                string newTitleYear = " (" + Console.ReadLine() + ")";
+    string newTitleYear = " (" + Console.ReadLine() + ")";
+    
+    System.Console.WriteLine("Please select up to five genres from this list by entering the number: (x to exit)");
+    System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","1. "+arrGenres[0],"2. "+arrGenres[1],
+                            "3. "+arrGenres[2],"4. "+arrGenres[3],"5. "+arrGenres[4]);
+    System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","6. "+arrGenres[5],"7. "+arrGenres[6],
+                            "8. "+arrGenres[7],"9. "+arrGenres[8],"10. "+arrGenres[9]);
+    System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","11. "+arrGenres[10],"12. "+arrGenres[11],
+                            "13. "+arrGenres[12],"14. "+arrGenres[13],"15. "+arrGenres[14]);
+    System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","16. "+arrGenres[15],"17. "+arrGenres[16],
+                            "18. "+arrGenres[17],"19. "+arrGenres[18],"20. "+arrGenres[19]);
+    
+    for(int i = 0; i < 5; i++){
+        bool isParsable = Int32.TryParse(Console.ReadLine(), out int userInputGenre);
+        
+        if(isParsable == false && i == 0) {
+            logger!.Error("No categories selected.  Please select from the list: ");
+            i -= 1;
+            continue;
+        }else if (isParsable == false){
+            //exiting category selections
+            break;
+        }else if (userInputGenre < 1 || userInputGenre > 20) {
+            logger!.Error("Number is out of bounds, please select again: ");
+            i -= 1;
+            continue;
+        }else {
+            arrNewTitleGenres.Add(arrGenres[userInputGenre-1]);
+        }
+    }
+    
                 
-                System.Console.WriteLine("Please select up to five genres from this list by entering the number: (x to exit)");
-                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","1. "+arrGenres[0],"2. "+arrGenres[1],
-                                        "3. "+arrGenres[2],"4. "+arrGenres[3],"5. "+arrGenres[4]);
-                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","6. "+arrGenres[5],"7. "+arrGenres[6],
-                                        "8. "+arrGenres[7],"9. "+arrGenres[8],"10. "+arrGenres[9]);
-                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","11. "+arrGenres[10],"12. "+arrGenres[11],
-                                        "13. "+arrGenres[12],"14. "+arrGenres[13],"15. "+arrGenres[14]);
-                System.Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}{4,-15}","16. "+arrGenres[15],"17. "+arrGenres[16],
-                                        "18. "+arrGenres[17],"19. "+arrGenres[18],"20. "+arrGenres[19]);
-                
-                for(int i = 0; i < 5; i++){
-                    bool isParsable = Int32.TryParse(Console.ReadLine(), out int userInputGenre);
-                    if(isParsable == false) {
-                        break;
-                    }else{
-                        arrNewTitleGenres.Add(arrGenres[userInputGenre]);
-                    }
-                }
-                
-                // now build the string and append to the file
-                    //  build part of the output string
-                string myOutputToAppend = String.Concat(myMovieIndex + 1,",",newTitle,newTitleYear,",");
+    // now build the string and append to the file
+        //  build the front portion of the output string
+    string myOutputToAppend = String.Concat(myMovieIndex + 1,",",newTitle,newTitleYear,",");
 
-                //loop for writing the genres to the output string
-                for(int j = 0; j < arrNewTitleGenres.Count; j++){
-                    myOutputToAppend += arrNewTitleGenres[j];
-                    if(j < arrNewTitleGenres.Count-1){
-                        myOutputToAppend += "|";
-                    }
-                }
-                System.Console.WriteLine(myOutputToAppend);
-                //add the line to the end of the file
-                //StreamWriter sw = new StreamWriter(file,append:  true);
-                using(StreamWriter sw = new StreamWriter(file,append: true))
-                //"D:/School/2023 Spring/DotNet/Module04/ml-latest-small/movies.csv"
-                sw.WriteLine(myOutputToAppend);
+    //loop for writing the genres to the output string
+    for(int j = 0; j < arrNewTitleGenres.Count; j++){
+        myOutputToAppend += arrNewTitleGenres[j];
+        if(j < arrNewTitleGenres.Count-1){
+            myOutputToAppend += "|";
+        }
+    }
+    
+    //add the line to the end of the file
+    using(StreamWriter sw = new StreamWriter(file,append: true))
+    sw.WriteLine(myOutputToAppend);
 }
 
